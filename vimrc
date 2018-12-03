@@ -18,14 +18,20 @@ let g:ctrlp_working_path_mode = 'a'
 let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files -co --exclude-standard']
 
 " Syntastic
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
+" set statusline+=%#warningmsg#
+" set statusline+=%{SyntasticStatuslineFlag()}
+" set statusline+=%*
 
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
+" let g:syntastic_always_populate_loc_list = 1
+" let g:syntastic_auto_loc_list = 1
+" let g:syntastic_check_on_open = 1
+" let g:syntastic_check_on_wq = 0
+
+" UltiSnips
+" let g:UltiSnipsExpandTrigger="<tab>"
+" let g:UltiSnipsJumpForwardTrigger="<c-b>"
+" let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+" let g:UltiSnipsEditSplit="vertical"
 
 " ME
 set colorcolumn=110
@@ -33,6 +39,7 @@ set number
 set rnu
 set tabstop=4
 set softtabstop=4
+set shiftwidth=4
 set expandtab
 set cursorline
 set lazyredraw
@@ -46,8 +53,12 @@ set foldlevelstart=99
 set foldnestmax=10
 set foldmethod=indent
 
+" let skeletons#autoRegister = 1
+
 autocmd InsertEnter * :set norelativenumber
 autocmd InsertLeave * :set rnu 
+
+set updatetime=100
 
 " MAPS
 let mapleader=','
