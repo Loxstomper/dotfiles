@@ -1,0 +1,17 @@
+# editor / tool backups
+*.bak
+*.bak-*
+*.bak[0-9]*
+*.orig
+*.swp
+
+# machine-local files (mirrors of the ~/.*.local convention)
+*.local
+*-work
+
+# runtime state written by tools into stowed dirs
+mac/sketchybar/.config/sketchybar/profiles/.current
+node_modules/
+
+# macOS
+.DS_Store

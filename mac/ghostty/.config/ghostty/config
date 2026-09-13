@@ -1,0 +1,19 @@
+# Ghostty configuration
+
+theme = Solarized Dark Patched
+
+font-family = JetBrainsMono Nerd Font Mono
+font-size = 26
+macos-option-as-alt = true
+window-padding-x = 8
+window-padding-y = 8
+
+# Transparency — lower opacity = more see-through; blur frosts what's behind
+background-opacity = 0.9
+background-blur = true
+
+# Global hotkey: Cmd+Enter opens a new Ghostty window from any app
+keybind = global:cmd+enter=new_window
+
+# Machine-local overrides (font size for this screen, etc). Never committed.
+config-file = ?config.local

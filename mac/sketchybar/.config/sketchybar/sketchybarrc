@@ -1,0 +1,217 @@
+#!/usr/bin/env bash
+# SketchyBar — Solarized Dark, integrated with AeroSpace
+# Every size lives in sizes.sh, which picks a preset from the active display
+# profile: one global bar has to serve panels from 254 PPI (built-in at 1:1) to
+# 110 PPI (the 34" Dell), and no single number does that. See sizes.sh.
+# Docs: https://felixkratz.github.io/SketchyBar/
+
+export PATH="/opt/homebrew/bin:$PATH"
+
+CONFIG_DIR="$HOME/.config/sketchybar"
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+source "$CONFIG_DIR/colors.sh"
+source "$CONFIG_DIR/sizes.sh"
+
+FONT="JetBrainsMono Nerd Font"
+APP_FONT="sketchybar-app-font"
+
+##### Bar appearance #####
+sketchybar --bar \
+  height=$BAR_HEIGHT \
+  position=top \
+  sticky=on \
+  padding_left=$BAR_PADDING \
+  padding_right=$BAR_PADDING \
+  color="$BAR_COLOR" \
+  corner_radius=0 \
+  border_width=0 \
+  shadow=off
+
+##### Item defaults #####
+sketchybar --default \
+  updates=when_shown \
+  icon.font="$FONT:Bold:$ICON_SIZE.0" \
+  icon.color="$ICON_COLOR" \
+  icon.padding_left=$ICON_PAD_L \
+  icon.padding_right=$ICON_PAD_R \
+  label.font="$FONT:Medium:$LABEL_SIZE.0" \
+  label.color="$LABEL_COLOR" \
+  label.padding_left=$LABEL_PAD_L \
+  label.padding_right=$LABEL_PAD_R \
+  background.color="$ITEM_BG_COLOR" \
+  background.corner_radius=$CORNER_RADIUS \
+  background.height=$ITEM_BG_HEIGHT \
+  padding_left=$ITEM_PAD \
+  padding_right=$ITEM_PAD
+
+##### AeroSpace workspaces (left) #####
+sketchybar --add event aerospace_workspace_change
+
+for sid in 1 2 3 4 5 6 7 8 9; do
+  # Workspace number (bare). Painted by the spaces_refresh orchestrator below,
+  # which pins it to its monitor's bar (display=N) and styles focus/empty.
+  sketchybar --add item space.$sid left \
+    --set space.$sid \
+      updates=on \
+      drawing=off \
+      icon="$sid" \
+      icon.font="$FONT:Bold:$SPACE_ICON_SIZE.0" \
+      icon.padding_left=$SPACE_ICON_PAD \
+      icon.padding_right=$SPACE_ICON_PAD \
+      label.drawing=off \
+      background.height=$SPACE_BG_HEIGHT \
+      background.corner_radius=$CORNER_RADIUS \
+      background.drawing=off \
+      click_script="aerospace workspace $sid" \
+      padding_left=$ITEM_PAD \
+      padding_right=$(( ITEM_PAD / 2 ))
+
+  # App-icon container — a rounded chip holding the small app icons
+  sketchybar --add item space.$sid.apps left \
+    --set space.$sid.apps \
+      updates=on \
+      drawing=off \
+      icon.drawing=off \
+      label.font="$APP_FONT:Regular:$APP_ICON_SIZE.0" \
+      label.color="$BASE2" \
+      label.padding_left=$APP_PAD \
+      label.padding_right=$APP_PAD \
+      background.color="$BASE01" \
+      background.height=$SPACE_BG_HEIGHT \
+      background.corner_radius=$CORNER_RADIUS \
+      background.drawing=off \
+      click_script="aerospace workspace $sid" \
+      padding_left=$(( ITEM_PAD / 2 )) \
+      padding_right=$ITEM_PAD
+done
+
+# Hidden orchestrator — repaints all workspace items monitor-aware (pins each to
+# the bar of the monitor hosting it) on focus change AND on monitor plug/unplug.
+# updates=on so its script runs even though the item itself is never drawn.
+sketchybar --add item spaces_refresh left \
+  --subscribe spaces_refresh aerospace_workspace_change display_change \
+  --set spaces_refresh \
+    updates=on \
+    drawing=off \
+    script="$PLUGIN_DIR/aerospace.sh"
+
+##### AeroSpace mode indicator (left, hidden unless in service mode) #####
+sketchybar --add event aerospace_mode_change
+
+sketchybar --add item mode left \
+  --subscribe mode aerospace_mode_change \
+  --set mode \
+    updates=on \
+    drawing=off \
+    icon=$'\xef\x80\x93' \
+    icon.color="$BASE3" \
+    label.font="$FONT:Bold:$MODE_LABEL_SIZE.0" \
+    label.color="$BASE3" \
+    background.color="$ORANGE" \
+    background.drawing=on \
+    script="$PLUGIN_DIR/mode.sh"
+
+##### Right side #####
+sketchybar --add item clock right \
+  --set clock \
+    update_freq=10 \
+    icon=$'\xef\x80\x97' \
+    icon.color="$BLUE" \
+    script="$PLUGIN_DIR/clock.sh"
+
+sketchybar --add item battery right \
+  --subscribe battery system_woke power_source_change \
+  --set battery \
+    update_freq=120 \
+    script="$PLUGIN_DIR/battery.sh"
+
+# display_change / system_woke are here because the default output device flips
+# when displays come and go — that is what silently changes whether a software
+# volume exists at all.
+sketchybar --add item volume right \
+  --subscribe volume volume_change system_woke display_change \
+  --set volume \
+    icon.color="$CYAN" \
+    script="$PLUGIN_DIR/volume.sh"
+
+# Network throughput — one item, two stacked lines: the download line is
+# the icon, the upload line is the label pulled back over it (negative
+# label.padding_left = -text width) and offset vertically. Set by wifi.sh.
+# Widths come from sizes.sh: 7 monospace chars at 0.6 em.
+sketchybar --add item net right \
+  --set net \
+    icon.font="$FONT:Medium:$STACK_SIZE.0" \
+    icon.padding_left=0 \
+    icon.padding_right=0 \
+    icon.y_offset=$STACK_OFFSET \
+    label.font="$FONT:Medium:$STACK_SIZE.0" \
+    label.padding_left=-$NET_OVERLAP \
+    label.padding_right=0 \
+    label.y_offset=-$STACK_OFFSET \
+    padding_left=$STACK_PAD \
+    padding_right=$STACK_PAD
+
+sketchybar --add item wifi right \
+  --subscribe wifi wifi_change \
+  --set wifi \
+    update_freq=2 \
+    icon=$'\xef\x87\xab' \
+    script="$PLUGIN_DIR/wifi.sh"
+
+# CPU + memory — one item, two stacked lines (CPU over memory). Each line is
+# glyph + space + 4-char percent rendered in the Mono Nerd Font (single-width
+# glyph) = 6 chars at 0.6 em, so the label overlaps by that much.
+sketchybar --add item sys right \
+  --set sys \
+    icon.font="JetBrainsMono Nerd Font Mono:Medium:$STACK_SIZE.0" \
+    icon.padding_left=0 \
+    icon.padding_right=0 \
+    icon.y_offset=$STACK_OFFSET \
+    label.font="JetBrainsMono Nerd Font Mono:Medium:$STACK_SIZE.0" \
+    label.padding_left=-$SYS_OVERLAP \
+    label.padding_right=0 \
+    label.y_offset=-$STACK_OFFSET \
+    padding_left=$STACK_PAD \
+    padding_right=$STACK_PAD \
+    update_freq=10 \
+    script="$PLUGIN_DIR/sys.sh"
+
+##### Display-profile switcher — added last so it sits leftmost in the right #####
+# group. Click to open a popup of profiles; each entry replays a saved
+# displayplacer arrangement (plugins/display.sh) and re-tiles AeroSpace.
+# Profiles are captured in-situ with `display.sh save <name>`.
+sketchybar --add item display right \
+  --subscribe display display_change \
+  --set display \
+    icon=$'\xf3\xb0\x8d\xb9' \
+    icon.color="$VIOLET" \
+    label="—" \
+    popup.background.color="$ITEM_BG_COLOR" \
+    popup.background.corner_radius=$CORNER_RADIUS \
+    popup.background.border_width=2 \
+    popup.background.border_color="$ACCENT_COLOR" \
+    popup.horizontal=off \
+    click_script="sketchybar --set display popup.drawing=toggle" \
+    script="$PLUGIN_DIR/display.sh update"
+
+# Popup entries — $1 = visible label, $2 = profile name passed to display.sh
+add_display_profile() {
+  sketchybar --add item display.$2 popup.display \
+    --set display.$2 \
+      icon.drawing=off \
+      label="$1" \
+      label.align=left \
+      label.padding_left=$POPUP_PAD \
+      label.padding_right=$POPUP_PAD \
+      background.drawing=off \
+      click_script="$PLUGIN_DIR/display.sh apply $2"
+}
+add_display_profile "Laptop only"       laptop
+add_display_profile "Home (3 displays)" home
+add_display_profile "Present — extend"  present_extend
+add_display_profile "Present — mirror"  present_mirror
+
+##### Render #####
+sketchybar --update
+
+echo "sketchybar config loaded ($PRESET preset, bar ${BAR_HEIGHT}pt)"

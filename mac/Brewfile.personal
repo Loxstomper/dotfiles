@@ -1,0 +1,22 @@
+# Personal / home-machine only.
+tap "anomalyco/tap"
+tap "dicklesworthstone/tap"
+tap "nklmilojevic/sofka"
+brew "ollama"
+brew "espeak-ng"
+brew "ffmpeg"
+brew "imagemagick"
+brew "poppler"
+brew "nmap"
+brew "geckodriver"
+brew "anomalyco/tap/opencode", trusted: true
+brew "beads"
+brew "dicklesworthstone/tap/bv", trusted: true
+brew "ccusage"
+brew "nklmilojevic/sofka/sofka", trusted: true
+cask "ollama-app"
+cask "audacity"
+cask "auto-subs"
+cask "openscad"
+cask "vlc"
+cask "localsend"

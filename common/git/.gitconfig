@@ -1,0 +1,9 @@
+# Identity lives in ~/.gitconfig.local (written by install.sh, never committed)
+# so the same repo serves personal and work machines. useConfigOnly makes git
+# refuse to commit if that file is missing rather than guessing user@hostname.
+[include]
+	path = ~/.gitconfig.local
+[user]
+	useConfigOnly = true
+[init]
+	defaultBranch = master

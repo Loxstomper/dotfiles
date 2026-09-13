@@ -1,0 +1,14 @@
+#!/bin/bash
+# JankyBorders — window border highlight, themed for Solarized Dark.
+# Docs: https://github.com/FelixKratz/JankyBorders
+source "$HOME/.config/theme/solarized-dark.sh"
+
+options=(
+  style=round
+  width=12.0
+  hidpi=off
+  active_color=0xff$SOL_BLUE       # Solarized blue  - focused window
+  inactive_color=0x40$SOL_BASE01   # Solarized base01 (faint) - other windows
+)
+
+borders "${options[@]}"

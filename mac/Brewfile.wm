@@ -1,0 +1,8 @@
+# Window manager stack — AeroSpace tiling + SketchyBar + JankyBorders.
+tap "nikitabobko/tap"
+tap "felixkratz/formulae"
+brew "felixkratz/formulae/borders", trusted: true
+brew "felixkratz/formulae/sketchybar", trusted: true
+brew "displayplacer"            # display profiles via sketchybar/plugins/display.sh
+cask "aerospace"
+cask "font-sketchybar-app-font"

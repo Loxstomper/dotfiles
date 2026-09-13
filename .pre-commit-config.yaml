@@ -1,0 +1,11 @@
+# Public repo: block secrets before they hit history. Uses the gitleaks from
+# Brewfile.core rather than the upstream hook, which needs Go to build.
+#   pre-commit install
+repos:
+  - repo: local
+    hooks:
+      - id: gitleaks
+        name: gitleaks
+        entry: gitleaks protect --staged --verbose --redact
+        language: system
+        pass_filenames: false
