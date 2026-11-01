@@ -69,6 +69,7 @@ stow_pkg "$MAC" bin
 # only if the tool is present
 stow_if nvim         "$COMMON" nvim
 stow_if /Applications/Ghostty.app   "$MAC" ghostty
+stow_if "/Applications/Rex Beta.app" "$COMMON" rex
 stow_if /Applications/AeroSpace.app "$MAC" aerospace
 stow_if sketchybar   "$MAC" sketchybar
 stow_if borders      "$MAC" borders
@@ -91,6 +92,9 @@ setup_git_identity
 header "macOS defaults"
 if ask "Apply macOS defaults (dark mode, dock, key repeat, caps→esc, …)?" y; then
   bash "$MAC/defaults.sh"
+fi
+if [ -d "/Applications/Rex Beta.app" ] && ask "Apply Rex settings (font, Solarized theme)? Rex must be quit." y; then
+  bash "$MAC/rex-defaults.sh"
 fi
 
 # ---- done -------------------------------------------------------------------
